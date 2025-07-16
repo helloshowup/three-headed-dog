@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { marked } = require('marked');
 const { pack } = require('simple-scorm-packager');
+const { packageCourse } = require('@openlearning/imscc-packager');
 
 const SRC_DIR = path.join(__dirname, 'markdown');
 const OUT_DIR = path.join(__dirname, 'build');
@@ -58,6 +59,22 @@ async function build() {
       title: 'Course',
       source: OUT_DIR,
       package: outputZip,
+    });
+  } catch (err) {
+    throw err;
+  }
+
+  const pages = fs
+    .readdirSync(OUT_DIR)
+    .filter(f => f.endsWith('.html'))
+    .map(f => ({ title: path.parse(f).name, file: f }));
+
+  try {
+    await packageCourse({
+      organization: 'ShowUp',
+      title: 'Course',
+      pages,
+      output: path.join(distDir, 'course.imscc'),
     });
   } catch (err) {
     throw err;
