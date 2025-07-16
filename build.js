@@ -4,6 +4,13 @@ const {marked} = require('marked');
 
 const SRC_DIR = path.join(__dirname, 'markdown');
 const OUT_DIR = path.join(__dirname, 'build');
+const WRAPPER_SRC = path.join(
+  __dirname,
+  'node_modules',
+  'scorm-api-wrapper',
+  'ScormWrapper.js'
+);
+const WRAPPER_DEST = path.join(OUT_DIR, 'ScormWrapper.js');
 
 if (!fs.existsSync(SRC_DIR)) {
   throw new Error(`Missing directory: ${SRC_DIR}`);
@@ -33,6 +40,11 @@ function build() {
     const html = marked.parse(fs.readFileSync(file, 'utf8'));
     fs.writeFileSync(dest, html);
   }
+
+  if (!fs.existsSync(WRAPPER_SRC)) {
+    throw new Error(`Missing SCORM wrapper: ${WRAPPER_SRC}`);
+  }
+  fs.copyFileSync(WRAPPER_SRC, WRAPPER_DEST);
 }
 
 build();
