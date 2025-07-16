@@ -1,4 +1,4 @@
-**4.7 Build a strong support network**
+# 4.7 Build a strong support network
 
 ## Learning objectives  
 Many people think success is a solo race, but strong students know a web of helpers lifts them over each hurdle.  
