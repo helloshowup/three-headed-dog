@@ -64,5 +64,3 @@ Result:
 1. **Write/collect Markdown** in `/markdown`.
 
 2. **Run `node build.js`** – Codex can generate/maintain this script.
-
-
