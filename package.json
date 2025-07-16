@@ -1,0 +1,19 @@
+{
+  "name": "three-headed-dog",
+  "version": "1.0.0",
+  "description": "| Stage | Repo (clone & `npm i`) | What it does | Why it fits | | ----- | ----- | ----- | ----- | | 1\\. Markdown → HTML | **markedjs/marked** | Fast, 100 % JS Markdown → HTML converter | One-liner in Node, no build chain needed [GitHub](https://github.com/markedjs/marked?utm_source=chatgpt.com) | | 2\\. Add SCORM runtime | **pipwerks/scorm-api-wrapper** | Drop the `scorm_api_wrapper.js` file next to each HTML page to satisfy LMS API calls | Zero config, industry-standard wrapper [GitHub](https://github.com/pipwerks/scorm-api-wrapper?utm_source=chatgpt.com) | | 3\\. Zip as SCORM | **lmihaidaniel/simple-scorm-packager** | CLI/JS lib that walks a folder, writes `imsmanifest.xml`, and outputs SCORM 1.2/2004 ZIP | No code if you use the CLI; scriptable if you want full automation [npm](https://www.npmjs.com/package/simple-scorm-packager?utm_source=chatgpt.com) |",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@openlearning/imscc-packager": "^0.1.6",
+    "marked": "^16.0.0",
+    "scorm-api-wrapper": "^0.0.2",
+    "simple-scorm-packager": "^0.2.7"
+  }
+}
