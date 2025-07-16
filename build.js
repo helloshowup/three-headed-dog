@@ -2,7 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const { marked } = require('marked');
 const pack = require('simple-scorm-packager');
-const { packageCourse: packCourse } = require('@openlearning/imscc-packager');
+let { packCourse, packageCourse } = require('@openlearning/imscc-packager');
+if (!packCourse && packageCourse) {
+  packCourse = packageCourse;
+}
 
 const COURSE_TITLE = 'Course';
 const VERSION = '1.2';
