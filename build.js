@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const {marked} = require('marked');
+const { marked } = require('marked');
+const { pack } = require('simple-scorm-packager');
 
 const SRC_DIR = path.join(__dirname, 'markdown');
 const OUT_DIR = path.join(__dirname, 'build');
@@ -30,7 +31,7 @@ function walk(dir) {
   return files;
 }
 
-function build() {
+async function build() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const mdFiles = walk(SRC_DIR).filter(f => f.endsWith('.md'));
   for (const file of mdFiles) {
@@ -45,6 +46,25 @@ function build() {
     throw new Error(`Missing SCORM wrapper: ${WRAPPER_SRC}`);
   }
   fs.copyFileSync(WRAPPER_SRC, WRAPPER_DEST);
+
+  const distDir = path.join(__dirname, 'dist');
+  fs.mkdirSync(distDir, { recursive: true });
+
+  const outputZip = path.join(distDir, 'course_scorm.zip');
+  try {
+    await pack({
+      version: '1.2',
+      organization: 'ShowUp',
+      title: 'Course',
+      source: OUT_DIR,
+      package: outputZip,
+    });
+  } catch (err) {
+    throw err;
+  }
 }
 
-build();
+build().catch(err => {
+  console.error(err);
+  process.exit(1);
+});
