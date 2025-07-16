@@ -14,15 +14,30 @@ module.exports = { COURSE_TITLE, VERSION };
 
 const SRC_DIR = path.join(__dirname, 'markdown');
 const OUT_DIR = path.join(__dirname, 'build');
-const WRAPPER_SRC = path.join(
-  __dirname,
-  'node_modules',
-  'scorm-api-wrapper',
-  'src',
-  'JavaScript',
-  'SCORM_API_wrapper.js'
-);
 const WRAPPER_DEST = path.join(OUT_DIR, 'ScormWrapper.js');
+
+const WRAPPER_CANDIDATES = [
+  path.join(
+    __dirname,
+    'node_modules',
+    'pipwerks-scorm-api-wrapper',
+    'src',
+    'JavaScript',
+    'scorm_api_wrapper.js'
+  ),
+  path.join(
+    __dirname,
+    'node_modules',
+    'scorm-api-wrapper',
+    'src',
+    'JavaScript',
+    'SCORM_API_wrapper.js'
+  ),
+];
+const WRAPPER_SRC = WRAPPER_CANDIDATES.find(fs.existsSync);
+if (!WRAPPER_SRC) {
+  throw new Error(`Missing SCORM wrapper. Checked: ${WRAPPER_CANDIDATES.join(', ')}`);
+}
 
 if (!fs.existsSync(SRC_DIR)) {
   throw new Error(`Missing directory: ${SRC_DIR}`);
@@ -53,10 +68,12 @@ async function build() {
     fs.writeFileSync(dest, html);
   }
 
-  if (!fs.existsSync(WRAPPER_SRC)) {
-    throw new Error(`Missing SCORM wrapper: ${WRAPPER_SRC}`);
-  }
   fs.copyFileSync(WRAPPER_SRC, WRAPPER_DEST);
+  const srcSize = fs.statSync(WRAPPER_SRC).size;
+  const destSize = fs.statSync(WRAPPER_DEST).size;
+  if (srcSize !== destSize) {
+    throw new Error('SCORM wrapper copy failed: size mismatch');
+  }
 
   const distDir = path.join(__dirname, 'dist');
   fs.mkdirSync(distDir, { recursive: true });
