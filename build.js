@@ -4,13 +4,20 @@ const { marked } = require('marked');
 const pack = require('simple-scorm-packager');
 const { packageCourse: packCourse } = require('@openlearning/imscc-packager');
 
+const COURSE_TITLE = 'Course';
+const VERSION = '1.2';
+
+module.exports = { COURSE_TITLE, VERSION };
+
 const SRC_DIR = path.join(__dirname, 'markdown');
 const OUT_DIR = path.join(__dirname, 'build');
 const WRAPPER_SRC = path.join(
   __dirname,
   'node_modules',
   'scorm-api-wrapper',
-  'ScormWrapper.js'
+  'src',
+  'JavaScript',
+  'SCORM_API_wrapper.js'
 );
 const WRAPPER_DEST = path.join(OUT_DIR, 'ScormWrapper.js');
 
@@ -52,29 +59,51 @@ async function build() {
   fs.mkdirSync(distDir, { recursive: true });
 
   try {
-    await pack({
-      version: '1.2',
-      organization: 'ShowUp',
-      title: 'Course',
-      source: OUT_DIR,
-      package: { zip: true, outputFolder: distDir },
+    await new Promise((resolve, reject) => {
+      pack(
+        {
+          version: VERSION,
+          organization: 'ShowUp',
+          title: COURSE_TITLE,
+          source: OUT_DIR,
+          package: { zip: true, outputFolder: distDir, name: 'course_scorm', version: VERSION },
+        },
+        msg => {
+          if (msg instanceof Error) {
+            reject(msg);
+          } else if (msg === 'Done') {
+            resolve();
+          }
+        }
+      );
     });
+    const zips = fs.readdirSync(distDir).filter(f => f.endsWith('.zip'));
+    if (zips.length) {
+      const latest = zips.sort((a, b) => fs.statSync(path.join(distDir, b)).mtimeMs - fs.statSync(path.join(distDir, a)).mtimeMs)[0];
+      if (latest !== 'course_scorm.zip') {
+        fs.renameSync(path.join(distDir, latest), path.join(distDir, 'course_scorm.zip'));
+      }
+      const remaining = fs.readdirSync(distDir).filter(f => f.endsWith('.zip') && f !== 'course_scorm.zip');
+      for (const f of remaining) {
+        fs.unlinkSync(path.join(distDir, f));
+      }
+    }
   } catch (err) {
     throw err;
   }
 
-  const pages = fs
-    .readdirSync(OUT_DIR)
-    .filter(f => f.endsWith('.html'))
-    .map(f => ({ title: path.parse(f).name, file: f }));
+  const htmlFiles = fs.readdirSync(OUT_DIR).filter(f => f.endsWith('.html'));
+  const pages = htmlFiles.map(f => ({
+    title: path.parse(f).name,
+    type: 'webcontent',
+    content: fs.readFileSync(path.join(OUT_DIR, f), 'utf8'),
+  }));
+  const course = { title: COURSE_TITLE, description: '', modules: [{ title: COURSE_TITLE, pages }] };
 
   try {
-    await packCourse({
-      organization: 'ShowUp',
-      title: 'Course',
-      pages,
-      output: path.join(distDir, 'course.imscc'),
-    });
+    const [zip] = await packCourse(course);
+    const buffer = await zip.generateAsync({ type: 'nodebuffer' });
+    fs.writeFileSync(path.join(distDir, 'course.imscc'), buffer);
   } catch (err) {
     throw err;
   }
