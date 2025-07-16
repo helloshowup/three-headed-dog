@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const { marked } = require('marked');
-const { pack } = require('simple-scorm-packager');
-const { packageCourse } = require('@openlearning/imscc-packager');
+const pack = require('simple-scorm-packager');
+const { packageCourse: packCourse } = require('@openlearning/imscc-packager');
 
 const SRC_DIR = path.join(__dirname, 'markdown');
 const OUT_DIR = path.join(__dirname, 'build');
@@ -51,14 +51,13 @@ async function build() {
   const distDir = path.join(__dirname, 'dist');
   fs.mkdirSync(distDir, { recursive: true });
 
-  const outputZip = path.join(distDir, 'course_scorm.zip');
   try {
     await pack({
       version: '1.2',
       organization: 'ShowUp',
       title: 'Course',
       source: OUT_DIR,
-      package: outputZip,
+      package: { zip: true, outputFolder: distDir },
     });
   } catch (err) {
     throw err;
@@ -70,7 +69,7 @@ async function build() {
     .map(f => ({ title: path.parse(f).name, file: f }));
 
   try {
-    await packageCourse({
+    await packCourse({
       organization: 'ShowUp',
       title: 'Course',
       pages,
