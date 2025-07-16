@@ -56,6 +56,7 @@ Result:
 * `dist/LearnStage Course_1.2.zip` → upload as SCORM.
 
 * `dist/course.imscc` → upload as Common Cartridge.
+* node build.js also emits course.imscc
 
 ---
 
