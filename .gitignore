@@ -10,3 +10,4 @@ package.json
 edit-course-title.ps1.txt
 *.ps1
 *.json
+update_image.py
