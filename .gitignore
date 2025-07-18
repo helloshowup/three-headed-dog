@@ -3,3 +3,10 @@ build/
 dist/
 /markdown
 /markdown
+package-lock.json
+update_h1_style.py
+package.json
+/markdown
+edit-course-title.ps1.txt
+*.ps1
+*.json
