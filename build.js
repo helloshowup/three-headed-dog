@@ -10,8 +10,6 @@ if (!packCourse && packageCourse) {
 const COURSE_TITLE = 'Course';
 const VERSION = '1.2';
 
-module.exports = { COURSE_TITLE, VERSION };
-
 const SRC_DIR = path.join(__dirname, 'markdown');
 const OUT_DIR = path.join(__dirname, 'build');
 const WRAPPER_DEST = path.join(OUT_DIR, 'ScormWrapper.js');
@@ -57,25 +55,7 @@ function walk(dir) {
   return files;
 }
 
-async function build() {
-  fs.mkdirSync(OUT_DIR, { recursive: true });
-  const mdFiles = walk(SRC_DIR).filter(f => f.endsWith('.md'));
-  for (const file of mdFiles) {
-    const rel = path.relative(SRC_DIR, file);
-    const dest = path.join(OUT_DIR, rel.replace(/\.md$/, '.html'));
-    fs.mkdirSync(path.dirname(dest), { recursive: true });
-    const html = marked.parse(fs.readFileSync(file, 'utf8'));
-    fs.writeFileSync(dest, html);
-  }
-
-  fs.copyFileSync(WRAPPER_SRC, WRAPPER_DEST);
-  const srcSize = fs.statSync(WRAPPER_SRC).size;
-  const destSize = fs.statSync(WRAPPER_DEST).size;
-  if (srcSize !== destSize) {
-    throw new Error('SCORM wrapper copy failed: size mismatch');
-  }
-
-  const distDir = path.join(__dirname, 'dist');
+async function packageBuild(distDir) {
   fs.mkdirSync(distDir, { recursive: true });
 
   try {
@@ -129,7 +109,33 @@ async function build() {
   }
 }
 
-build().catch(err => {
-  console.error(err);
-  process.exit(1);
-});
+async function build() {
+  fs.mkdirSync(OUT_DIR, { recursive: true });
+  const mdFiles = walk(SRC_DIR).filter(f => f.endsWith('.md'));
+  for (const file of mdFiles) {
+    const rel = path.relative(SRC_DIR, file);
+    const dest = path.join(OUT_DIR, rel.replace(/\.md$/, '.html'));
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    const html = marked.parse(fs.readFileSync(file, 'utf8'));
+    fs.writeFileSync(dest, html);
+  }
+
+  fs.copyFileSync(WRAPPER_SRC, WRAPPER_DEST);
+  const srcSize = fs.statSync(WRAPPER_SRC).size;
+  const destSize = fs.statSync(WRAPPER_DEST).size;
+  if (srcSize !== destSize) {
+    throw new Error('SCORM wrapper copy failed: size mismatch');
+  }
+
+  const distDir = path.join(__dirname, 'dist');
+  await packageBuild(distDir);
+}
+
+module.exports = { COURSE_TITLE, VERSION, build, packageBuild };
+
+if (require.main === module) {
+  build().catch(err => {
+    console.error(err);
+    process.exit(1);
+  });
+}

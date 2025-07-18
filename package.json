@@ -4,9 +4,9 @@
   "description": "Minimal Node.js pipeline to convert Markdown to HTML, inject SCORM runtime, and package as SCORM 1.2 or IMS CC.",
   "main": "index.js",
   "scripts": {
-    "clean": "rimraf build dist",
-    "build": "npm run clean && node build.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "node package.js"
+
   },
   "keywords": [],
   "author": "",
@@ -18,7 +18,6 @@
     "simple-scorm-packager": "^0.2.7"
   },
   "devDependencies": {
-    "@openlearning/imscc-packager": "^0.1.6",
-    "rimraf": "^5.0.10"
+    "@openlearning/imscc-packager": "^0.1.6"
   }
 }
